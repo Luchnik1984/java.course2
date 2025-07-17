@@ -3,7 +3,6 @@ package pro.sky.java.course2.examinerservice.controller;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.java.course2.examinerservice.domain.Question;
-import pro.sky.java.course2.examinerservice.exeptions.QuestionAlreadyExistsException;
 import pro.sky.java.course2.examinerservice.service.JavaQuestionService;
 
 import java.util.Collection;
@@ -25,23 +24,15 @@ public class JavaQuestionController {
      *
      * @param question текст вопроса (не может быть пустым)
      * @param answer   текст ответа (не может быть пустым)
-     * @return добавленный вопрос (200 OK) или
-     * BAD_REQUEST (400) при невалидных данных,
-     * CONFLICT (409) при попытке добавить дубликат
+     * @return добавленный вопрос (200 OK)
      */
     @PostMapping("/add")
-    public ResponseEntity<Question> addQuestion(
+    public Question addQuestion(
             @RequestParam String question,
             @RequestParam String answer) {
-        try {
-            Question addedQuestion = service.addQuestion(question, answer);
-            return ResponseEntity.ok(addedQuestion);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build(); // 400
-        } catch (QuestionAlreadyExistsException e) {
-            return ResponseEntity.status(409).body(null); // 409 CONFLICT
+            return service.addQuestion(question,answer);
         }
-    }
+
 
     /**
      * Удаляет вопрос.

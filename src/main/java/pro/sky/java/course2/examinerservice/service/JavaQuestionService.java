@@ -1,10 +1,11 @@
 package pro.sky.java.course2.examinerservice.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course2.examinerservice.domain.Question;
-import pro.sky.java.course2.examinerservice.exeptions.EmptyQuestionListException;
-import pro.sky.java.course2.examinerservice.exeptions.QuestionAlreadyExistsException;
-import pro.sky.java.course2.examinerservice.exeptions.QuestionNotFoundException;
+import pro.sky.java.course2.examinerservice.exceptions.EmptyQuestionListException;
+import pro.sky.java.course2.examinerservice.exceptions.QuestionAlreadyExistsException;
+import pro.sky.java.course2.examinerservice.exceptions.QuestionNotFoundException;
 
 import java.util.*;
 
@@ -14,11 +15,12 @@ import java.util.*;
  */
 @Service
 public class JavaQuestionService implements QuestionService {
-    private final Set<Question> questions=new HashSet<>();
+    private final Set<Question> questions = new HashSet<>();
     private final Random random;
 
+    @Autowired
     public JavaQuestionService(Random random) {
-                this.random=random;
+        this.random = random;
     }
 
     @Override
@@ -41,9 +43,7 @@ public class JavaQuestionService implements QuestionService {
     public Question removeQuestion(Question question) {
 
         if (!questions.remove(question)) {
-            if (!questions.remove(question)) {
                 throw new QuestionNotFoundException("Вопрос не найден: " + question);
-            }
         }
         return question;
     }

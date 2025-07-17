@@ -1,4 +1,4 @@
-package pro.sky.java.course2.examinerservice.exeptions;
+package pro.sky.java.course2.examinerservice.exceptions;
 
 /**
  * Исключение при попытке добавить уже существующий вопрос.

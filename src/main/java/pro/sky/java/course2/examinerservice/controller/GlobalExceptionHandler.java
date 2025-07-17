@@ -4,8 +4,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import pro.sky.java.course2.examinerservice.exeptions.EmptyQuestionListException;
-import pro.sky.java.course2.examinerservice.exeptions.QuestionAlreadyExistsException;
+import pro.sky.java.course2.examinerservice.exceptions.EmptyQuestionListException;
+import pro.sky.java.course2.examinerservice.exceptions.NotEnoughQuestionsException;
+import pro.sky.java.course2.examinerservice.exceptions.QuestionAlreadyExistsException;
+import pro.sky.java.course2.examinerservice.exceptions.QuestionNotFoundException;
 
 /**
  * Обработчик исключений для контроллеров.
@@ -18,14 +20,19 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleIllegalArgument(IllegalArgumentException e) {
-        return ResponseEntity.badRequest().body(e.getMessage());
+        return ResponseEntity
+                .badRequest()
+                .body(e.getMessage());
     }
 
     /**
      * Обрабатывает отсутствующие вопросы (404 Not Found).
      */
-    public ResponseEntity<String> handleNotFound(RuntimeException e) {
-        return ResponseEntity.notFound().build();// 404
+    @ExceptionHandler
+    public ResponseEntity<String> handleQuestionNotFound(QuestionNotFoundException e) {
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(e.getMessage());
     }
 
     /**
@@ -33,11 +40,13 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(QuestionAlreadyExistsException.class)
     public ResponseEntity<String> handleQuestionAlreadyExists(QuestionAlreadyExistsException e) {
-        return ResponseEntity.status(409).body(e.getMessage());
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
     }
 
     /**
-     * Обрабатывает пустую коллекцию вопросов ( NO_CONTENT).
+     * Обрабатывает пустую коллекцию вопросов (204 NO_CONTENT).
      */
     @ExceptionHandler(EmptyQuestionListException.class)
     public ResponseEntity<String> handleEmptyList(EmptyQuestionListException e) {
@@ -51,7 +60,19 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleInternalError(Exception e) {
-        return ResponseEntity.internalServerError().body("Внутренняя ошибка сервера");
+        return ResponseEntity
+                .internalServerError()
+                .body(" Внутренняя ошибка сервера "+ e.getMessage());
+    }
+
+    /**
+     * Обрабатывает превышение размера коллекции уникальных вопросов (400 BAD_REQUEST).
+     */
+    @ExceptionHandler(NotEnoughQuestionsException.class)
+    public ResponseEntity<String> handleNotEnoughQuestions(NotEnoughQuestionsException e) {
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(e.getMessage());
     }
 }
 
