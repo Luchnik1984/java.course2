@@ -30,8 +30,8 @@ public class JavaQuestionController {
     public Question addQuestion(
             @RequestParam String question,
             @RequestParam String answer) {
-            return service.addQuestion(question,answer);
-        }
+        return service.addQuestion(question, answer);
+    }
 
 
     /**

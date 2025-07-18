@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleInternalError(Exception e) {
         return ResponseEntity
                 .internalServerError()
-                .body(" Внутренняя ошибка сервера "+ e.getMessage());
+                .body(" Внутренняя ошибка сервера " + e.getMessage());
     }
 
     /**

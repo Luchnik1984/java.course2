@@ -33,5 +33,4 @@ public class ExamController {
             @RequestParam(defaultValue = "5") int amount) {
         return ResponseEntity.ok(examinerService.getQuestions(amount));
     }
-
 }

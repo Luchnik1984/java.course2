@@ -43,7 +43,7 @@ public class JavaQuestionService implements QuestionService {
     public Question removeQuestion(Question question) {
 
         if (!questions.remove(question)) {
-                throw new QuestionNotFoundException("Вопрос не найден: " + question);
+            throw new QuestionNotFoundException("Вопрос не найден: " + question);
         }
         return question;
     }
