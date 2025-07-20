@@ -10,6 +10,7 @@ import pro.sky.java.course2.examinerservice.domain.Question;
 import pro.sky.java.course2.examinerservice.exceptions.NotEnoughQuestionsException;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -27,36 +28,42 @@ class ExaminerServiceImplTest {
     @InjectMocks
     private ExaminerServiceImpl examinerService;
 
-    /**
-     * Проверяет, что метод {@link ExaminerServiceImpl#getQuestions(int)}
-     * возвращает указанное количество уникальных вопросов.
-     */
+    private final Question question1 = new Question("Q1", "A1");
+    private final Question question2 = new Question("Q2", "A2");
+
     @Test
     void getQuestions_ShouldReturnUniqueQuestions() {
-        when(questionServiceMock.getAllQuestions()).thenReturn(Set.of(
-                new Question("Q1", "A1"),
-                new Question("Q2", "A2")
-        ));
+        when(questionServiceMock.getAllQuestions())
+                .thenReturn(Set.of(question1, question2));
         when(questionServiceMock.getRandomQuestion())
-                .thenReturn(new Question("Q1", "A1")) // Первый вызов
-                .thenReturn(new Question("Q2", "A2")); // Второй вызов
+                .thenReturn(question1)
+                .thenReturn(question2);
 
-        Collection<Question> questions = examinerService.getQuestions(2);
-        assertEquals(2, questions.size()); // Проверяем количество
-        assertTrue(questions.contains(new Question("Q1", "A1"))); // Проверяем содержание
-        assertTrue(questions.contains(new Question("Q2", "A2")));
+        Collection<Question> result = examinerService.getQuestions(2);
+
+        assertEquals(2, new HashSet<>(result).size()); // Проверка уникальности
     }
 
-    /**
-     * Проверяет, что метод {@link ExaminerServiceImpl#getQuestions(int)}
-     * выбрасывает {@link NotEnoughQuestionsException}, если запрошено больше вопросов, чем есть в сервисе.
-     */
     @Test
     void getQuestions_ShouldThrowIfNotEnoughQuestions() {
-        when(questionServiceMock.getAllQuestions()).thenReturn(Set.of(
-                new Question("Q1", "A1") // В коллекции только 1 вопрос
-        ));
+        when(questionServiceMock.getAllQuestions())
+                .thenReturn(Set.of(question1));
+
         assertThrows(NotEnoughQuestionsException.class,
-                () -> examinerService.getQuestions(2)); // Запрашиваем 2
+                () -> examinerService.getQuestions(2));
+    }
+
+    @Test
+    void getQuestions_ShouldReturnExactAmount() {
+        when(questionServiceMock.getAllQuestions())
+                .thenReturn(Set.of(question1, question2));
+        when(questionServiceMock.getRandomQuestion())
+                .thenReturn(question1)
+                .thenReturn(question2);
+
+        Collection<Question> result = examinerService.getQuestions(2);
+
+        assertEquals(2, result.size());
+        assertTrue(result.containsAll(Set.of(question1, question2)));
     }
 }

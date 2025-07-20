@@ -7,9 +7,7 @@ import pro.sky.java.course2.examinerservice.service.JavaQuestionService;
 
 import java.util.Collection;
 
-/**
- * Контроллер для работы с вопросами по Java.
- */
+
 @RestController
 @RequestMapping("exam/java")
 public class JavaQuestionController {
@@ -27,10 +25,10 @@ public class JavaQuestionController {
      * @return добавленный вопрос (200 OK)
      */
     @PostMapping("/add")
-    public Question addQuestion(
+    public ResponseEntity<Question> addQuestion(
             @RequestParam String question,
             @RequestParam String answer) {
-        return service.addQuestion(question, answer);
+        return ResponseEntity.ok(service.addQuestion(question, answer));
     }
 
 
