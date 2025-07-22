@@ -31,6 +31,14 @@ class ExaminerServiceImplTest {
     private final Question question1 = new Question("Q1", "A1");
     private final Question question2 = new Question("Q2", "A2");
 
+
+    /**
+     * Проверяет генерацию набора уникальных вопросов.
+     * Ожидается что:
+     * Метод вернет ровно указанное количество вопросов.
+     * Все вопросы будут уникальными.
+     * Будут использованы методы сервиса вопросов
+     */
     @Test
     void getQuestions_ShouldReturnUniqueQuestions() {
         when(questionServiceMock.getAllQuestions())
@@ -41,9 +49,14 @@ class ExaminerServiceImplTest {
 
         Collection<Question> result = examinerService.getQuestions(2);
 
+        assertEquals(2, result.size(), "Должно вернуться 2 вопроса");
         assertEquals(2, new HashSet<>(result).size()); // Проверка уникальности
     }
 
+    /**
+     * Проверяет обработку ситуации, когда запрашивается больше вопросов, чем есть в сервисе.
+     * Ожидается выброс NotEnoughQuestionsException.
+     */
     @Test
     void getQuestions_ShouldThrowIfNotEnoughQuestions() {
         when(questionServiceMock.getAllQuestions())
@@ -53,6 +66,9 @@ class ExaminerServiceImplTest {
                 () -> examinerService.getQuestions(2));
     }
 
+    /**
+     * Проверяет точное соответствие количества возвращаемых вопросов запрошенному.
+     */
     @Test
     void getQuestions_ShouldReturnExactAmount() {
         when(questionServiceMock.getAllQuestions())
@@ -63,7 +79,7 @@ class ExaminerServiceImplTest {
 
         Collection<Question> result = examinerService.getQuestions(2);
 
-        assertEquals(2, result.size());
+        assertEquals(2, result.size(),"Количество вопросов должно соответствовать запрошенному");
         assertTrue(result.containsAll(Set.of(question1, question2)));
     }
 }

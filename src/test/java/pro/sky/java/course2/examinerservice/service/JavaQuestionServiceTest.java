@@ -34,6 +34,12 @@ class JavaQuestionServiceTest {
 
     private final Question testQuestion = new Question("Q1", "A1");
 
+    /**
+     * Проверяет успешное добавление нового вопроса.
+     * Ожидается что:
+     * Метод вернет добавленный вопрос.
+     * Будет вызван метод репозитория addQuestion().
+     */
     @Test
     void addQuestion_ShouldAddQuestionWhenNotExists() {
         when(repository.contains(testQuestion)).thenReturn(false);
@@ -42,10 +48,14 @@ class JavaQuestionServiceTest {
         Question result = service.addQuestion(testQuestion);
 
 
-       assertEquals(testQuestion, result);
+       assertEquals(testQuestion, result, "Метод должен вернуть добавленный вопрос");
         verify(repository).addQuestion(testQuestion);
     }
 
+    /**
+     * Проверяет обработку попытки добавления дубликата вопроса.
+     * Ожидается выброс QuestionAlreadyExistsException.
+     */
     @Test
     void addQuestion_ShouldThrowWhenQuestionExists() {
         when(repository.contains(testQuestion)).thenReturn(true);
@@ -56,6 +66,12 @@ class JavaQuestionServiceTest {
         verify(repository, never()).addQuestion(any());
     }
 
+    /**
+     * Проверяет успешное удаление существующего вопроса.
+     * Ожидается что:
+     * Метод вернет удаленный вопрос.
+     * Будет вызван метод репозитория removeQuestion()
+     */
     @Test
     void removeQuestion_ShouldRemoveWhenExists() {
         when(repository.contains(testQuestion)).thenReturn(true);
@@ -67,6 +83,10 @@ class JavaQuestionServiceTest {
         verify(repository).removeQuestion(testQuestion);
     }
 
+    /**
+     * Проверяет обработку попытки удаления несуществующего вопроса.
+     * Ожидается выброс QuestionNotFoundException.
+     */
     @Test
     void removeQuestion_ShouldThrowWhenNotExists() {
         when(repository.contains(testQuestion)).thenReturn(false);
@@ -77,6 +97,13 @@ class JavaQuestionServiceTest {
         verify(repository, never()).removeQuestion(any());
     }
 
+    /**
+     * Проверяет получение случайного вопроса.
+     * Ожидается что:
+     * Будут вызваны методы репозитория getAllQuestions()
+     * Будет использован Random для выбора вопроса
+     * Метод вернет корректный вопрос
+     */
     @Test
     void getRandomQuestion_ShouldReturnQuestion() {
         Set<Question> questions = Set.of(

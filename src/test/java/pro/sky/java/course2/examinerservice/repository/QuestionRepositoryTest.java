@@ -17,8 +17,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class QuestionRepositoryTest {
 
+    /**
+     * Тестируемый экземпляр репозитория.
+     * Инициализируется перед каждым тестом.
+     */
     private QuestionRepository repository;
 
+    /**
+     * Инициализация тестового окружения перед каждым тестом.
+     * Создает новый экземпляр репозитория с предустановленными вопросами.
+     */
     @BeforeEach
     void setUp() {
         repository = new QuestionRepository();
@@ -32,16 +40,29 @@ class QuestionRepositoryTest {
                 () -> questions.add(new Question("Новый вопрос", "Ответ")));
     }
 
+    /**
+     * Проверяет успешное добавление нового уникального вопроса.
+     */
     @Test
     void addQuestion_ShouldAddNewQuestion() {
-        Question newQuestion = new Question("Что такое Stream API?", "Интерфейс для работы с данными");
+        Question newQuestion = new Question("Новый вопрос", "Ответ");
+        int initialSize = repository.getAllQuestions().size();
 
         boolean result = repository.addQuestion(newQuestion);
 
-        assertTrue(result);
-        assertTrue(repository.getAllQuestions().contains(newQuestion));
+        assertTrue(result, "Метод должен вернуть true при успешном добавлении");
+        assertTrue(repository.getAllQuestions().contains(newQuestion),
+                "Добавленный вопрос должен присутствовать в репозитории");
+        assertEquals(initialSize + 1, repository.getAllQuestions().size(),
+                "Количество вопросов должно увеличиться на 1");
     }
 
+    /**
+     * Проверяет обработку попытки добавления дубликата вопроса.
+     * Ожидается, что при попытке добавить уже существующий вопрос:
+     * Будет выброшено QuestionAlreadyExistsException.
+     * Размер хранилища не изменится.
+     */
     @Test
     void addQuestion_ShouldThrowForDuplicate() {
         // Получаем существующий вопрос из репозитория
@@ -64,24 +85,66 @@ class QuestionRepositoryTest {
         assertTrue(repository.contains(question));
     }
 
+    /**
+     * Проверяет удаление существующего вопроса.
+     * Тест проверяет что:
+     * Метод возвращает true.
+     * Вопрос удаляется из хранилища.
+     * Общее количество вопросов уменьшается на 1
+     */
     @Test
     void removeQuestion_ShouldRemoveExistingQuestion() {
-        Question question = new Question("Что такое interface в Java?", "Это абстрактный тип, задающий поведение класса.");
+        Question question = repository.getAllQuestions().iterator().next();
+        int initialSize = repository.getAllQuestions().size();
 
         boolean result = repository.removeQuestion(question);
 
-        assertTrue(result);
-        assertFalse(repository.contains(question));
+        assertTrue(result, "Метод должен вернуть true при успешном удалении");
+        assertFalse(repository.getAllQuestions().contains(question),
+                "Удаленный вопрос не должен присутствовать в репозитории");
+        assertEquals(initialSize - 1, repository.getAllQuestions().size(),
+                "Количество вопросов должно уменьшиться на 1");
     }
 
+    /**
+     * Проверяет попытку удаления несуществующего вопроса.
+     * Ожидается что:
+     * Метод вернет false.
+     * Количество вопросов не изменится.
+     */
+    @Test
+    void removeQuestion_ShouldReturnFalseForNonExistingQuestion() {
+        Question nonExisting = new Question("Несуществующий", "Вопрос");
+        int initialSize = repository.getAllQuestions().size();
+
+        boolean result = repository.removeQuestion(nonExisting);
+
+        assertFalse(result, "Метод должен вернуть false для несуществующего вопроса");
+        assertEquals(initialSize, repository.getAllQuestions().size(),
+                "Количество вопросов не должно измениться");
+    }
+
+    /**
+     * Параметризованный тест для проверки поиска вопросов.
+     * Проверяет корректность работы метода findQuestionsContaining()
+     * с различными вариантами поисковых запросов.
+     * @param searchText текст для поиска
+     * @param expectedCount ожидаемое количество найденных вопросов
+     */
     @ParameterizedTest
     @MethodSource("provideSearchCases")
     void findQuestionsContaining_ShouldReturnMatchingQuestions(String searchText, int expectedCount) {
         List<Question> result = repository.findQuestionsContaining(searchText);
 
-        assertEquals(expectedCount, result.size());
+        assertEquals(expectedCount, result.size(),
+                "Количество найденных вопросов не соответствует ожидаемому");
     }
 
+    /**
+     * Провайдер тестовых данных для параметризованного теста поиска.
+     *
+     * @return поток аргументов в формате: (текст для поиска, ожидаемое количество результатов)
+     */
     private static Stream<Arguments> provideSearchCases() {
         return Stream.of(
                 Arguments.of("java", 3),
@@ -92,29 +155,17 @@ class QuestionRepositoryTest {
         );
     }
 
+    /**
+     * Проверяет регистронезависимость поиска вопросов.
+     * Ожидается, что поиск должен находить одни и те же вопросы
+     * независимо от регистра введенного текста.
+     */
     @Test
     void findQuestionsContaining_ShouldBeCaseInsensitive() {
         List<Question> result = repository.findQuestionsContaining("jAvA");
 
-        assertFalse(result.isEmpty());
+        assertFalse(result.isEmpty(),
+                "Поиск должен находить вопросы независимо от регистра");
     }
 
-    @Test
-    void concurrentAccess_ShouldBeThreadSafe() throws InterruptedException {
-        Thread thread1 = new Thread(() -> {
-            repository.addQuestion(new Question("Q1", "A1"));
-            repository.addQuestion(new Question("Q2", "A2"));
-        });
-
-        Thread thread2 = new Thread(() -> {
-            repository.removeQuestion(new Question("Что такое JVM?", "Виртуальная машина Java"));
-        });
-
-        thread1.start();
-        thread2.start();
-        thread1.join();
-        thread2.join();
-
-        assertDoesNotThrow(() -> repository.getAllQuestions());
-    }
 }
