@@ -26,7 +26,7 @@ public class JavaQuestionController {
      * @param answer   текст ответа (не может быть пустым)
      * @return добавленный вопрос (200 OK)
      */
-    @PostMapping("/add")
+    @RequestMapping(value = "/add", method = {RequestMethod.GET, RequestMethod.POST})
     public Question addQuestion(
             @RequestParam String question,
             @RequestParam String answer) {
@@ -41,7 +41,7 @@ public class JavaQuestionController {
      * @param answer   текст ответа
      * @return удаленный вопрос (200 OK) или NOT_FOUND (404) если вопрос не существует
      */
-    @DeleteMapping("remove")
+    @RequestMapping(value = "/remove", method = {RequestMethod.GET, RequestMethod.DELETE})
     public ResponseEntity<Question> removeQuestion(
             @RequestParam String question,
             @RequestParam String answer) {
