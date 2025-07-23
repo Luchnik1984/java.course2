@@ -15,5 +15,5 @@ public interface ExaminerService {
      * @return коллекция вопросов
      * @throws IllegalArgumentException если запрашиваемое количество превышает доступное
      */
-    Collection<Question> getQuestions(int amount);
+    Collection<Question> getQuestions(int amount,String subject);
 }

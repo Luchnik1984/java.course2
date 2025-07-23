@@ -1,37 +1,33 @@
 package pro.sky.java.course2.examinerservice.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import pro.sky.java.course2.examinerservice.domain.Question;
 import pro.sky.java.course2.examinerservice.exceptions.EmptyQuestionListException;
-import pro.sky.java.course2.examinerservice.exceptions.QuestionAlreadyExistsException;
-import pro.sky.java.course2.examinerservice.exceptions.QuestionNotFoundException;
+
+import pro.sky.java.course2.examinerservice.repository.QuestionRepository;
 
 import java.util.*;
 
-/**
- * Сервис для работы с вопросами по Java.
- * Хранит коллекцию вопросов и предоставляет методы для их добавления, удаления и получения.
- */
+
 @Service
 public class JavaQuestionService implements QuestionService {
-    private final Set<Question> questions = new HashSet<>();
+    private final QuestionRepository repository;  // Инжектируем репозиторий
     private final Random random;
 
     @Autowired
-    public JavaQuestionService(Random random) {
+    public JavaQuestionService(
+            @Qualifier("javaQuestionRepository") QuestionRepository repository, // Указываем конкретный репозиторий
+            Random random
+    ) {
+        this.repository = repository;
         this.random = random;
     }
 
     @Override
     public Question addQuestion(String question, String answer) {
-
-        Question newQuestion = new Question(question, answer);
-        if (questions.contains(newQuestion)) {
-            throw new QuestionAlreadyExistsException("Вопрос уже существует");
-        }
-        questions.add(newQuestion);
-        return newQuestion;
+        return repository.add(new Question(question, answer));
     }
 
     @Override
@@ -41,26 +37,18 @@ public class JavaQuestionService implements QuestionService {
 
     @Override
     public Question removeQuestion(Question question) {
-
-        if (!questions.remove(question)) {
-            throw new QuestionNotFoundException("Вопрос не найден: " + question);
-        }
-        return question;
+        return repository.remove(question);
     }
 
     @Override
     public Collection<Question> getAllQuestions() {
-        return Collections.unmodifiableSet(questions);
+        return repository.getAll();
     }
 
-    /**
-     * Возвращает случайный вопрос из коллекции.
-     *
-     * @return случайный вопрос
-     * @throws EmptyQuestionListException если коллекция вопросов пуста
-     */
+
     @Override
     public Question getRandomQuestion() {
+        Collection<Question> questions = repository.getAll();
         if (questions.isEmpty()) {
             throw new EmptyQuestionListException("Нет доступных вопросов");
         }

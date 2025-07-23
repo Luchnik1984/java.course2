@@ -9,139 +9,79 @@ import pro.sky.java.course2.examinerservice.domain.Question;
 import pro.sky.java.course2.examinerservice.exceptions.EmptyQuestionListException;
 import pro.sky.java.course2.examinerservice.exceptions.QuestionAlreadyExistsException;
 import pro.sky.java.course2.examinerservice.exceptions.QuestionNotFoundException;
+import pro.sky.java.course2.examinerservice.repository.JavaQuestionRepository;
 
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
-/**
- * Тесты для {@link JavaQuestionService}.
- * Проверяют добавление, удаление и получение вопросов, включая обработку исключений.
- */
 @ExtendWith(MockitoExtension.class)
 class JavaQuestionServiceTest {
-
+    @Mock
+    private JavaQuestionRepository repository;
     @Mock
     private Random random;
-
     @InjectMocks
     private JavaQuestionService service;
-
     private final Question testQuestion = new Question("Q1", "A1");
 
-    /**
-     * Проверяет, что метод {@link JavaQuestionService#addQuestion(String, String)}
-     * корректно добавляет вопрос и возвращает его.
-     */
     @Test
-    void addQuestion_WithStrings_ShouldAddQuestion() {
-        Question added = service.addQuestion("Q1", "A1");
-        assertEquals(new Question("Q1", "A1"), added);
-        assertTrue(service.getAllQuestions().contains(added));
+    void addQuestion_WithStrings_ShouldDelegateToRepository() {
+        when(repository.add(any(Question.class))).thenReturn(testQuestion);
+        Question result = service.addQuestion("Q1", "A1");
+        assertEquals(testQuestion, result);
+        verify(repository).add(testQuestion);
     }
 
-    /**
-     * Проверяет, что метод {@link JavaQuestionService#addQuestion(String, String)}
-     * выбрасывает {@link QuestionAlreadyExistsException} при попытке добавить дубликат.
-     */
     @Test
-    void addQuestion_WithStrings_ShouldThrowIfQuestionExists() {
-        service.addQuestion("Q1", "A1");
-        assertThrows(QuestionAlreadyExistsException.class,
-                () -> service.addQuestion("Q1", "A1"));
+    void addQuestion_WithStrings_ShouldThrowWhenQuestionExists() {
+        when(repository.add(any(Question.class))).thenThrow(QuestionAlreadyExistsException.class);
+        assertThrows(QuestionAlreadyExistsException.class, () -> service.addQuestion("Q1", "A1"));
     }
 
-    /**
-     * Проверяет, что метод {@link JavaQuestionService#addQuestion(Question)}
-     * корректно добавляет вопрос и возвращает его.
-     */
     @Test
-    void addQuestion_WithQuestionObject_ShouldAddQuestion() {
-        Question added = service.addQuestion(testQuestion);
-        assertEquals(testQuestion, added);
-        assertTrue(service.getAllQuestions().contains(testQuestion));
+    void removeQuestion_ShouldDelegateToRepository() {
+        when(repository.remove(testQuestion)).thenReturn(testQuestion);
+        Question result = service.removeQuestion(testQuestion);
+        assertEquals(testQuestion, result);
+        verify(repository).remove(testQuestion);
     }
 
-    /**
-     * Проверяет, что метод {@link JavaQuestionService#addQuestion(Question)}
-     * выбрасывает {@link QuestionAlreadyExistsException} при попытке добавить дубликат.
-     */
     @Test
-    void addQuestion_WithQuestionObject_ShouldThrowIfQuestionExists() {
-        service.addQuestion(testQuestion);
-        assertThrows(QuestionAlreadyExistsException.class,
-                () -> service.addQuestion(testQuestion));
+    void removeQuestion_ShouldThrowWhenQuestionNotFound() {
+        when(repository.remove(testQuestion)).thenThrow(QuestionNotFoundException.class);
+        assertThrows(QuestionNotFoundException.class, () -> service.removeQuestion(testQuestion));
     }
 
-    /**
-     * Проверяет, что метод {@link JavaQuestionService#removeQuestion(Question)}
-     * удаляет вопрос и возвращает его.
-     */
-    @Test
-    void removeQuestion_ShouldRemoveQuestion() {
-        service.addQuestion(testQuestion);
-        Question removedQuestion = service.removeQuestion(testQuestion);
-        assertEquals(testQuestion, removedQuestion);
-        assertFalse(service.getAllQuestions().contains(testQuestion));
-    }
-
-    /**
-     * Проверяет, что метод {@link JavaQuestionService#removeQuestion(Question)}
-     * выбрасывает {@link QuestionNotFoundException} при попытке удалить несуществующий вопрос.
-     */
-    @Test
-    void removeQuestion_ShouldThrowIfQuestionNotFound() {
-        assertThrows(QuestionNotFoundException.class,
-                () -> service.removeQuestion(testQuestion));
-    }
-
-    /**
-     * Проверяет, что метод {@link JavaQuestionService#getAllQuestions()}
-     * возвращает неизменяемую коллекцию.
-     */
-    @Test
-    void getAllQuestions_ShouldReturnUnmodifiableCollection() {
-        Collection<Question> questions = service.getAllQuestions();
-        assertThrows(UnsupportedOperationException.class,
-                () -> questions.add(testQuestion));
-    }
-
-    /**
-     * Проверяет, что метод {@link JavaQuestionService#getRandomQuestion()}
-     * корректно возвращает вопрос по заданному случайному индексу.
-     * <p>
-     * Тест фиксирует поведение {@link Random}, чтобы гарантированно получить вопрос с индексом 1.
-     * Это проверяет, что:
-     * 1. Метод правильно использует {@link Random#nextInt(int)} для выбора индекса.
-     * 2. Возвращается именно тот вопрос, который соответствует сгенерированному индексу.
-     */
     @Test
     void getRandomQuestion_ShouldReturnQuestionByIndex() {
-        // Фиксируем поведение Random: всегда возвращаем индекс 1
-        when(random.nextInt(anyInt())).thenReturn(1);
+        // Подготовка данных
+        Set<Question> questions = new HashSet<>(Set.of(
+                new Question("Q1", "A1"),
+                new Question("Q2", "A2")
+        ));
 
-        // Добавляем два вопроса в сервис
-        Question question1 = new Question("Q1", "A1");
-        Question question2 = new Question("Q2", "A2");
-        service.addQuestion(question1);
-        service.addQuestion(question2);
+        // Настройка моков
+        when(repository.getAll()).thenReturn(questions);
+        when(random.nextInt(questions.size())).thenReturn(1); // Фиксируем индекс 1
 
-        // Проверяем, что возвращается второй вопрос (индекс 1)
+        // Вызов метода
         Question result = service.getRandomQuestion();
-        assertEquals(question2, result);
+
+        // Проверка
+        assertEquals(new Question("Q2", "A2"), result);
+
+        // Проверка вызовов
+        verify(repository).getAll();
+        verify(random).nextInt(questions.size());
     }
 
-    /**
-     * Проверяет, что метод {@link JavaQuestionService#getRandomQuestion()}
-     * выбрасывает {@link EmptyQuestionListException} при пустой коллекции.
-     */
     @Test
-    void getRandomQuestion_ShouldThrowIfListIsEmpty() {
-        assertThrows(EmptyQuestionListException.class,
-                () -> service.getRandomQuestion()); // Коллекция пуста
+    void getRandomQuestion_ShouldThrowWhenEmpty() {
+        when(repository.getAll()).thenReturn(Set.of());
+        assertThrows(EmptyQuestionListException.class, () -> service.getRandomQuestion());
     }
-
 }

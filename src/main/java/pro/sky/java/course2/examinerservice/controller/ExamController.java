@@ -22,15 +22,18 @@ public class ExamController {
         this.examinerService = examinerService;
     }
 
+
     /**
      * Получить вопросы для экзамена.
      *
      * @param amount количество вопросов (по умолчанию 5)
+     *  @param subject предмет (по умолчанию java)
      * @return коллекция уникальных вопросов
      */
     @GetMapping("/questions")
     public ResponseEntity<Collection<Question>> getExamQuestions(
-            @RequestParam(defaultValue = "5") int amount) {
-        return ResponseEntity.ok(examinerService.getQuestions(amount));
+            @RequestParam(defaultValue = "5") int amount,
+            @RequestParam(defaultValue = "java") String subject) {
+        return ResponseEntity.ok(examinerService.getQuestions(amount, subject));
     }
 }
