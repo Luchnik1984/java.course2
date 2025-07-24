@@ -11,9 +11,10 @@ public interface ExaminerService {
     /**
      * Возвращает коллекцию уникальных случайных вопросов.
      *
-     * @param amount количество вопросов
+     * @param amount  количество вопросов
+     * @param subject предмет вопросов
      * @return коллекция вопросов
      * @throws IllegalArgumentException если запрашиваемое количество превышает доступное
      */
-    Collection<Question> getQuestions(int amount,String subject);
+    Collection<Question> getQuestions(int amount, String subject);
 }

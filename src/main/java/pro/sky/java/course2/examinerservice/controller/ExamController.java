@@ -26,8 +26,8 @@ public class ExamController {
     /**
      * Получить вопросы для экзамена.
      *
-     * @param amount количество вопросов (по умолчанию 5)
-     *  @param subject предмет (по умолчанию java)
+     * @param amount  количество вопросов (по умолчанию 5)
+     * @param subject предмет (по умолчанию java)
      * @return коллекция уникальных вопросов
      */
     @GetMapping("/questions")

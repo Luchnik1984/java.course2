@@ -1,5 +1,6 @@
 package pro.sky.java.course2.examinerservice.controller;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.java.course2.examinerservice.domain.Question;
@@ -15,7 +16,7 @@ import java.util.Collection;
 public class JavaQuestionController {
     private final JavaQuestionService service;
 
-    public JavaQuestionController(JavaQuestionService service) {
+    public JavaQuestionController(@Qualifier("javaQuestionService") JavaQuestionService service) {
         this.service = service;
     }
 

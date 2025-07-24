@@ -25,9 +25,12 @@ public class ExaminerServiceImpl implements ExaminerService {
     @Override
     public Collection<Question> getQuestions(int amount, String subject) {
         QuestionService service = Optional.ofNullable(subjectServices.get(subject))
+
                 .orElseThrow(() -> new IllegalArgumentException("Предмет не поддерживается: " + subject));
 
         Collection<Question> allQuestions = service.getAllQuestions();
+        System.out.println(service.getAllQuestions().size()); // для проверки
+        System.out.println(allQuestions.size());// для проверки
         if (amount > allQuestions.size()) {
             throw new NotEnoughQuestionsException("Запрошено " + amount +
                     " вопросов, из " + allQuestions.size() + " доступных.");
