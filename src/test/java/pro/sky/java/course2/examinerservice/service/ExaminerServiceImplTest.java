@@ -44,11 +44,11 @@ class ExaminerServiceImplTest {
     void getQuestions_JavaSubject_ReturnsUniqueQuestions() {
         // Подготовка данных
         when(javaQuestionService.getAllQuestions()).thenReturn(Set.of(javaQuestion1, javaQuestion2));
-//        System.out.println("Mock getAllQuestions: " + javaQuestionService.getAllQuestions());
+
         when(javaQuestionService.getRandomQuestion())
                 .thenReturn(javaQuestion1)
                 .thenReturn(javaQuestion2);
-//        System.out.println("Mock getAllQuestions: " + javaQuestionService.getRandomQuestion());
+
         // Вызов метода
         Collection<Question> result = examinerService.getQuestions(2, "java");
 
@@ -62,11 +62,11 @@ class ExaminerServiceImplTest {
     @Test
     void getQuestions_MathSubject_ReturnsUniqueQuestions() {
         when(mathQuestionService.getAllQuestions()).thenReturn(Set.of(mathQuestion1, mathQuestion2));
-//       System.out.println("Mock getAllQuestions: " + mathQuestionService.getAllQuestions().size());
+
         when(mathQuestionService.getRandomQuestion())
                 .thenReturn(mathQuestion1)
                 .thenReturn(mathQuestion2);
-//       System.out.println("Mock getAllQuestions: " + mathQuestionService.getRandomQuestion());
+
 
         Collection<Question> result = examinerService.getQuestions(2, "math");
 
