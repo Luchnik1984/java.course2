@@ -20,11 +20,11 @@ class ExaminerServiceImplTest {
 
     @Mock
 
-    private QuestionService javaQuestionService;
+    private JavaQuestionService javaQuestionService;
 
     @Mock
 
-    private QuestionService mathQuestionService;
+    private MathQuestionService mathQuestionService;
 
     @InjectMocks
     private ExaminerServiceImpl examinerService;
@@ -66,7 +66,6 @@ class ExaminerServiceImplTest {
         when(mathQuestionService.getRandomQuestion())
                 .thenReturn(mathQuestion1)
                 .thenReturn(mathQuestion2);
-
 
         Collection<Question> result = examinerService.getQuestions(2, "math");
 
