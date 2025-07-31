@@ -9,29 +9,34 @@ import pro.sky.java.course2.examinerservice.domain.Question;
 import pro.sky.java.course2.examinerservice.exceptions.EmptyQuestionListException;
 import pro.sky.java.course2.examinerservice.exceptions.QuestionAlreadyExistsException;
 import pro.sky.java.course2.examinerservice.exceptions.QuestionNotFoundException;
-import pro.sky.java.course2.examinerservice.repository.JavaQuestionRepository;
+import pro.sky.java.course2.examinerservice.repository.MathQuestionRepository;
 
 import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class JavaQuestionServiceTest {
+class MathQuestionServiceTest {
+
     @Mock
-    private JavaQuestionRepository repository;
+    MathQuestionRepository repository;
+
     @Mock
     private Random random;
+
     @InjectMocks
-    private JavaQuestionService service;
-    private final Question testQuestion = new Question("Q1", "A1");
+    private MathQuestionService service;
+    private final Question testQuestion = new Question("2+3", "5");
 
     @Test
     void addQuestion_WithStrings_ShouldDelegateToRepository() {
         when(repository.add(any(Question.class))).thenReturn(testQuestion);
-        Question result = service.addQuestion("Q1", "A1");
+        Question result = service.addQuestion("2+3", "5");
         assertEquals(testQuestion, result);
         verify(repository).add(testQuestion);
     }
@@ -39,7 +44,7 @@ class JavaQuestionServiceTest {
     @Test
     void addQuestion_WithStrings_ShouldThrowWhenQuestionExists() {
         when(repository.add(any(Question.class))).thenThrow(QuestionAlreadyExistsException.class);
-        assertThrows(QuestionAlreadyExistsException.class, () -> service.addQuestion("Q1", "A1"));
+        assertThrows(QuestionAlreadyExistsException.class, () -> service.addQuestion("2+3", "5"));
     }
 
     @Test
@@ -60,8 +65,8 @@ class JavaQuestionServiceTest {
     void getRandomQuestion_ShouldReturnQuestionByIndex() {
         // Подготовка данных
         Set<Question> questions = new HashSet<>(Set.of(
-                new Question("Q1", "A1"),
-                new Question("Q2", "A2")
+                new Question("2+3", "5"),
+                new Question("5*5", "25")
         ));
 
         // Настройка моков
@@ -72,7 +77,7 @@ class JavaQuestionServiceTest {
         Question result = service.getRandomQuestion();
 
         // Проверка
-        assertEquals(new Question("Q2", "A2"), result);
+        assertEquals(new Question("5*5", "25"), result);
 
         // Проверка вызовов
         verify(repository).getAll();
@@ -84,4 +89,5 @@ class JavaQuestionServiceTest {
         when(repository.getAll()).thenReturn(Set.of());
         assertThrows(EmptyQuestionListException.class, () -> service.getRandomQuestion());
     }
+
 }

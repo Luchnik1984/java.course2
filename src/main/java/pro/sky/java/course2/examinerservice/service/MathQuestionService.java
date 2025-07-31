@@ -9,15 +9,12 @@ import pro.sky.java.course2.examinerservice.repository.QuestionRepository;
 import java.util.*;
 
 @Service
-public class JavaQuestionService extends AbstractQuestionService {
+
+public class MathQuestionService extends AbstractQuestionService {
 
     @Autowired
-    public JavaQuestionService(
-            @Qualifier("javaQuestionRepository") QuestionRepository repository, // Указываем конкретный репозиторий
-            Random random
-    ) {
+    public MathQuestionService(
+            @Qualifier("mathQuestionRepository") QuestionRepository repository, Random random) {
         super(repository, random);
     }
 }
-
-
